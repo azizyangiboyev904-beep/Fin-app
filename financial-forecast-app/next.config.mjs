@@ -1,10 +1,9 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-  eslint: {
-    // Linting is run separately in CI; do not block production builds on it.
-    ignoreDuringBuilds: true,
-  },
-};
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-export default nextConfig;
+/**
+ * Merge Tailwind class names safely, resolving conflicting utility classes.
+ */
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}

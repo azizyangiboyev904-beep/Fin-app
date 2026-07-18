@@ -1,42 +1,37 @@
-{
-  "name": "financial-forecast-app",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "next": "15.5.20",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "recharts": "^2.15.0",
-    "framer-motion": "^11.15.0",
-    "lucide-react": "^0.469.0",
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^2.6.0",
-    "class-variance-authority": "^0.7.1",
-    "jspdf": "^2.5.2",
-    "jspdf-autotable": "^3.8.4",
-    "next-themes": "^0.4.4",
-    "@radix-ui/react-select": "^2.1.4",
-    "@radix-ui/react-tabs": "^1.1.2",
-    "@radix-ui/react-label": "^2.1.1",
-    "@radix-ui/react-toast": "^1.2.4",
-    "@radix-ui/react-slot": "^1.1.1"
-  },
-  "devDependencies": {
-    "typescript": "^5.7.2",
-    "@types/node": "^22.10.5",
-    "@types/react": "^19.0.4",
-    "@types/react-dom": "^19.0.2",
-    "tailwindcss": "^3.4.17",
-    "postcss": "^8.4.49",
-    "autoprefixer": "^10.4.20",
-    "eslint": "^9.17.0",
-    "eslint-config-next": "15.5.20",
-    "tailwindcss-animate": "^1.0.7"
+import type { CurrencyCode, CurrencyMeta } from "./types";
+
+export const CURRENCIES: Record<CurrencyCode, CurrencyMeta> = {
+  USD: { code: "USD", symbol: "$", label: "US Dollar", locale: "en-US" },
+  EUR: { code: "EUR", symbol: "€", label: "Euro", locale: "de-DE" },
+  UZS: { code: "UZS", symbol: "so'm", label: "Uzbek Som", locale: "uz-UZ" },
+  GBP: { code: "GBP", symbol: "£", label: "British Pound", locale: "en-GB" },
+};
+
+export const CURRENCY_LIST = Object.values(CURRENCIES);
+
+/**
+ * Format a number as currency for the given code. UZS has no minor unit in
+ * everyday use, so it's rendered without decimals.
+ */
+export function formatCurrency(amount: number, code: CurrencyCode): string {
+  const meta = CURRENCIES[code];
+  const maximumFractionDigits = code === "UZS" ? 0 : 2;
+
+  try {
+    return new Intl.NumberFormat(meta.locale, {
+      style: "currency",
+      currency: code,
+      maximumFractionDigits,
+      minimumFractionDigits: code === "UZS" ? 0 : 0,
+    }).format(amount);
+  } catch {
+    return `${meta.symbol}${amount.toLocaleString(undefined, { maximumFractionDigits })}`;
   }
+}
+
+/** Format a plain number with locale-aware thousands separators. */
+export function formatNumber(amount: number, code: CurrencyCode = "USD"): string {
+  const meta = CURRENCIES[code];
+  const maximumFractionDigits = code === "UZS" ? 0 : 2;
+  return new Intl.NumberFormat(meta.locale, { maximumFractionDigits }).format(amount);
 }
